@@ -29,10 +29,8 @@ namespace Battleships {
 
             Form1 mainMenu = new Form1();
 
-            Server pull = new Server(mainMenu.ipthis.ToString());
-            Client push = new Client(mainMenu.ipother.ToString());
-
-
+            //Server pull = new Server(mainMenu.ipthis.ToString());
+            //Client push = new Client(mainMenu.ipother.ToString());
         }
 
         private void pictureBox1_Click(object sender, EventArgs e) {
@@ -42,14 +40,13 @@ namespace Battleships {
             else player = 1;
             gameLayoutLoad();
             game = new GameHandler(player);
-            if (game.player == 1) {
+            //if (game.player == 1) {
 
-                //select ships and form a matrix;
-                //game.myStart();
-            }
-            else {
+            //    //FIGURE OUT HOW TO START THE GAME.
+            //}
+            //else {
 
-            }
+            //} when the list is ready, send it to the other server, and on it, wait for the incoming message, and only then send the replying string
         }
         bool red, blue;
         private void pictureBox1_Paint(object sender, PaintEventArgs e)         //player selection
@@ -92,9 +89,9 @@ namespace Battleships {
             label2.Location = new Point(20 + (pictureBox3.Location.X - (pictureBox2.Location.X + pictureBox2.Width)) / 2 + (pictureBox2.Location.X + pictureBox2.Width) - label2.Width / 2, pictureBox3.Location.Y + pictureBox3.Height / 2);
 
             if (ships.Count == 34) {
-                game.myStart(ships);
-                ships.Clear();
-
+                game.myStart(ships); // ************************************************************************************************************************************************************************88
+                ships.Add(34);
+                ships.Add(34);
             }
         }
 
@@ -142,7 +139,7 @@ namespace Battleships {
                 e.Graphics.FillRectangle(Brushes.LightGray, 60, i, 655, 5);
                 e.Graphics.FillRectangle(Brushes.LightGray, i, 60, 5, 655);
             }
-
+            
         }
 
         private void pictureBox3_Paint(object sender, PaintEventArgs e)         //enemy ships
@@ -189,6 +186,10 @@ namespace Battleships {
                 e.Graphics.FillRectangle(Brushes.LightGray, 60, i, 453, 3);
                 e.Graphics.FillRectangle(Brushes.LightGray, i, 60, 3, 453);
             }
+
+            for (int i = 0; i < ships.Count; i += 2) {
+                e.Graphics.FillRectangle(Brushes.Blue,63+39*ships[i+1],63+39*ships[i],36,36);
+            }
         }
 
         private void pictureBox2_Click(object sender, EventArgs e) {
@@ -198,6 +199,7 @@ namespace Battleships {
             getIndex(cursorX, cursorY, 5, 60, ref j, ref i);
             ships.Add(i);
             ships.Add(j);
+            pictureBox3.Refresh();
         }
 
         private void gameLayoutLoad() {
