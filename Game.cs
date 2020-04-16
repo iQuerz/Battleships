@@ -90,21 +90,22 @@ namespace Battleships {
             if (ships.Count == 34) {
                 game.myStart(ships);
                 ships.Clear();
-                timer2.Start();
+                gameStart();
             }
         }
 
         private void timer2_Tick(object sender, EventArgs e) {
-            if(player == 1) {
-                push.send(game.getMyShips());
-                game.enemyStart(pull.receive());
-                label1.Text = "Connected with the enemy captain! Your turn!";
-            }
-            else {
-                game.enemyStart(pull.receive());
-                push.send(game.getMyShips());
-                label1.Text = "Connected with the enemy captain! Wait for your turn.";
-            }
+            //if(player == 1) {
+            //    push.send(game.getMyShips());
+            //    game.enemyStart(pull.receive());
+            //    label1.Text = "Connected with the enemy captain! Your turn!";
+                
+            //}
+            //else {
+            //    game.enemyStart(pull.receive());
+            //    push.send(game.getMyShips());
+            //    label1.Text = "Connected with the enemy captain! Wait for your turn.";
+            //}
         }
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)         //enemy shooting area
@@ -300,6 +301,20 @@ namespace Battleships {
                 default:
                     return "ERROR";
                     break;
+            }
+        }
+        private void gameStart() {
+            if (player == 1) {
+                push.send(game.getMyShips());
+                game.enemyStart(pull.receive());
+                label1.Text = "Connected with the enemy captain! Your turn!";
+                pictureBox2.Refresh();
+            }
+            else {
+                game.enemyStart(pull.receive());
+                push.send(game.getMyShips());
+                label1.Text = "Connected with the enemy captain! Wait for your turn.";
+                pictureBox2.Refresh();
             }
         }
     }
