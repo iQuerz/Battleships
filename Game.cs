@@ -251,7 +251,7 @@ namespace Battleships {
                 int i = 0, j = 0;
                 getIndex(cursorX, cursorY, 5, 60, ref j, ref i);
                 game.playing = game.myTurn(i,j);
-                shotSend += i + " " + j + " ";
+                shotSend += j + " " + i + " ";
                 if (game.playing == 1 && !game.won()) {
                     label1.Text = "Nice shot! One more chance!";
                     readyToPlay = true;
@@ -263,8 +263,8 @@ namespace Battleships {
                     this.Close();
                 }
                 else {
-                    label1.Text = "You missed! Enemy turn.";
                     push.send(shotSend);
+                    label1.Text = "You missed! Enemy turn.";
                     shotSend = "";
                 }
                 updateLocations();

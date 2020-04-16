@@ -39,3 +39,4 @@ namespace Battleships
         }
     }
 }
+////CHECK PLAYER VARIABLE
