@@ -17,16 +17,25 @@ namespace Battleships
         {
             InitializeComponent();
         }
-        public IPAddress ipthis;
-        public IPAddress ipother;
+        public string getIpThis() {
+            //return IPAddress.Parse(textBox1.Text).ToString();     
+            return ipthis.ToString();
+        }
+        public string getIpOther() {
+            //return IPAddress.Parse(textBox2.Text).ToString();
+            return ipother.ToString();
+        }
+
+        public static IPAddress ipthis;
+        public static IPAddress ipother;
         private void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                //ipthis = IPAddress.Parse(textBox1.Text);
-                //ipother = IPAddress.Parse(textBox2.Text);
-                //label1.Text = "BATTLESHIPS";
-                //label1.Location = new Point(this.ClientRectangle.Width / 2 - label1.Width / 2, 200);
+                ipthis = IPAddress.Parse(textBox1.Text);
+                ipother = IPAddress.Parse(textBox2.Text);
+                label1.Text = "BATTLESHIPS";
+                label1.Location = new Point(this.ClientRectangle.Width / 2 - label1.Width / 2, 200);
                 Game startgame = new Game();
                 startgame.Show();
 

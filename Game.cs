@@ -7,18 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net;
 
 namespace Battleships {
     public partial class Game : Form {
         public Game() {
             InitializeComponent();
         }
-        int player, selectedI, selectedJ;
+        int player = 3, selectedI, selectedJ;
         GameHandler game;
-        bool selected = false, startgame = false;
+        bool selected = false, startgame = false, addships = true;
         List<int> ships = new List<int>();
 
+        Server pull;
+        Client push;
         private void Game_Load(object sender, EventArgs e) {
+
             pictureBox1.Width = this.ClientRectangle.Width;
             pictureBox1.Height = this.ClientRectangle.Height;
             timer1.Start();
@@ -26,11 +30,12 @@ namespace Battleships {
             pictureBox3.Hide();
             label1.Hide();
             label2.Hide();
+            
 
             Form1 mainMenu = new Form1();
-
-            //Server pull = new Server(mainMenu.ipthis.ToString());
-            //Client push = new Client(mainMenu.ipother.ToString());
+            
+            pull = new Server(mainMenu.getIpThis());
+            push = new Client(mainMenu.getIpOther());
         }
 
         private void pictureBox1_Click(object sender, EventArgs e) {
@@ -40,13 +45,6 @@ namespace Battleships {
             else player = 1;
             gameLayoutLoad();
             game = new GameHandler(player);
-            //if (game.player == 1) {
-
-            //    //FIGURE OUT HOW TO START THE GAME.
-            //}
-            //else {
-
-            //} when the list is ready, send it to the other server, and on it, wait for the incoming message, and only then send the replying string
         }
         bool red, blue;
         private void pictureBox1_Paint(object sender, PaintEventArgs e)         //player selection
@@ -80,7 +78,8 @@ namespace Battleships {
                 label2.Hide();
             }
             else {
-                label2.Show();
+                if (player == 1 || player == 2)
+                    label2.Show();
             }
 
             int indexI = 0, indexJ = 0;
@@ -89,9 +88,22 @@ namespace Battleships {
             label2.Location = new Point(20 + (pictureBox3.Location.X - (pictureBox2.Location.X + pictureBox2.Width)) / 2 + (pictureBox2.Location.X + pictureBox2.Width) - label2.Width / 2, pictureBox3.Location.Y + pictureBox3.Height / 2);
 
             if (ships.Count == 34) {
-                game.myStart(ships); // ************************************************************************************************************************************************************************88
-                ships.Add(34);
-                ships.Add(34);
+                game.myStart(ships);
+                ships.Clear();
+                timer2.Start();
+            }
+        }
+
+        private void timer2_Tick(object sender, EventArgs e) {
+            if(player == 1) {
+                push.send(game.getMyShips());
+                game.enemyStart(pull.receive());
+                label1.Text = "Connected with the enemy captain! Your turn!";
+            }
+            else {
+                game.enemyStart(pull.receive());
+                push.send(game.getMyShips());
+                label1.Text = "Connected with the enemy captain! Wait for your turn.";
             }
         }
 
@@ -139,7 +151,11 @@ namespace Battleships {
                 e.Graphics.FillRectangle(Brushes.LightGray, 60, i, 655, 5);
                 e.Graphics.FillRectangle(Brushes.LightGray, i, 60, 5, 655);
             }
-            
+
+            if (addships)
+                for (int i = 0; i < ships.Count; i += 2) {
+                    e.Graphics.FillRectangle(Brushes.Blue, 65 + 65 * ships[i + 1], 65 + 65 * ships[i], 60, 60);
+                }
         }
 
         private void pictureBox3_Paint(object sender, PaintEventArgs e)         //enemy ships
@@ -187,19 +203,39 @@ namespace Battleships {
                 e.Graphics.FillRectangle(Brushes.LightGray, i, 60, 3, 453);
             }
 
-            for (int i = 0; i < ships.Count; i += 2) {
-                e.Graphics.FillRectangle(Brushes.Blue,63+39*ships[i+1],63+39*ships[i],36,36);
+            if (addships)
+                for (int i = 0; i < ships.Count; i += 2) {
+                    e.Graphics.FillRectangle(Brushes.Blue, 63 + 39 * ships[i + 1], 63 + 39 * ships[i], 36, 36);
+                }
+            else {
+                for (int i = 0; i < 10; i++) {
+                    for (int j = 0; j < 10; j++) {
+                        if (game.myShips[i, j] == 1)
+                            e.Graphics.FillRectangle(Brushes.Blue, 63 + 39 * i, 63 + 39 * j, 36, 36);
+                        else if(game.myShips[i,j] == 2) {
+                            e.Graphics.FillRectangle(Brushes.Red, 63 + 39 * i, 63 + 39 * j, 36, 36);
+                        }
+                    }
+                }
             }
         }
 
+        
+
         private void pictureBox2_Click(object sender, EventArgs e) {
-            int cursorX = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)).X - 5 - pictureBox2.Location.X - 60;
-            int cursorY = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)).Y - 5 - pictureBox2.Location.Y - 60;
-            int i = 0, j = 0;
-            getIndex(cursorX, cursorY, 5, 60, ref j, ref i);
-            ships.Add(i);
-            ships.Add(j);
-            pictureBox3.Refresh();
+            if (addships) {
+                int cursorX = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)).X - 5 - pictureBox2.Location.X - 60;
+                int cursorY = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)).Y - 5 - pictureBox2.Location.Y - 60;
+                int i = 0, j = 0;
+                getIndex(cursorX, cursorY, 5, 60, ref j, ref i);
+                ships.Add(i);
+                ships.Add(j);
+                pictureBox3.Refresh();
+                pictureBox2.Refresh();
+            }
+            if(ships.Count == 34) {
+                addships = false;
+            }
         }
 
         private void gameLayoutLoad() {

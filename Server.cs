@@ -16,7 +16,7 @@ namespace Battleships
         {
             this.hostIP = IPAddress.Parse(hostIP);
         }
-        public string recieve()
+        public string receive()
         {
             try
             {
@@ -34,7 +34,7 @@ namespace Battleships
             }
             catch(Exception e)
             {
-                return "Error... " + e.StackTrace;
+                return receive();
             }
         }
     }

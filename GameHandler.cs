@@ -97,7 +97,7 @@ namespace Battleships
         {
             for (int i = 0; i < 34; i += 2)
             {
-                this.myShips[myShips[i], myShips[i + 1]] = 1;
+                this.myShips[myShips[i+1], myShips[i]] = 1;
             }
         }
         public void enemyStart(string enemyShips)
@@ -136,6 +136,20 @@ namespace Battleships
             if(sunkenShips == 17)
                 return true;
             return false;
+        }
+        ///<summary>
+        ///Returns coordinates of the ships in a string, each one divided by " ".
+        ///</summary>
+        public string getMyShips() {
+            string s = "";
+            for (int i = 0; i < 10; i++) {
+                for (int j = 0; j < 10; j++) {
+                    if (myShips[i, j] == 1) {
+                        s += i + " " + j + " ";
+                    }
+                }
+            }
+            return s;
         }
     }
 }

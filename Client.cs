@@ -38,7 +38,7 @@ namespace Battleships
             }
             catch (Exception e)
             {
-                errorMsg = "Error... " + e.StackTrace;
+                this.send(data);
             }
         }
     }
