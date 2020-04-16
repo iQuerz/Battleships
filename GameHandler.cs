@@ -16,6 +16,7 @@ namespace Battleships
         public GameHandler(int player)
         {
             this.player = player;
+            this.playing = player;
             enemyShips = new bool[10, 10];
             shotsFired = new int[10, 10];
             myShips = new int[10, 10];

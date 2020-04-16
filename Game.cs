@@ -16,7 +16,8 @@ namespace Battleships {
         }
         int player = 3, selectedI, selectedJ;
         GameHandler game;
-        bool selected = false, startgame = false, addships = true;
+        bool selected = false, startgame = false, addships = true, readyToPlay = false;
+        string shotSend = "";
         List<int> ships = new List<int>();
 
         Server pull;
@@ -85,7 +86,7 @@ namespace Battleships {
             int indexI = 0, indexJ = 0;
             getIndex(cursorX, cursorY, 5, 60, ref indexJ, ref indexI);
             label2.Text = getStringFromIndex(indexI, indexJ);
-            label2.Location = new Point(20 + (pictureBox3.Location.X - (pictureBox2.Location.X + pictureBox2.Width)) / 2 + (pictureBox2.Location.X + pictureBox2.Width) - label2.Width / 2, pictureBox3.Location.Y + pictureBox3.Height / 2);
+            updateLocations();
 
             if (ships.Count == 34) {
                 game.myStart(ships);
@@ -95,17 +96,18 @@ namespace Battleships {
         }
 
         private void timer2_Tick(object sender, EventArgs e) {
-            //if(player == 1) {
-            //    push.send(game.getMyShips());
-            //    game.enemyStart(pull.receive());
-            //    label1.Text = "Connected with the enemy captain! Your turn!";
-                
-            //}
-            //else {
-            //    game.enemyStart(pull.receive());
-            //    push.send(game.getMyShips());
-            //    label1.Text = "Connected with the enemy captain! Wait for your turn.";
-            //}
+            if(game.playing == 2) {
+                game.enemyTurn(pull.receive());
+                if (game.lost()) {
+                    label1.Text = "Better luck next time, captain!";
+                    updateLocations();
+                    MessageBox.Show("You lost!");
+                    this.Close();
+                }
+                game.playing = 1;
+                label1.Text = "Your turn!";
+                timer2.Stop();
+            }
         }
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)         //enemy shooting area
@@ -221,7 +223,9 @@ namespace Battleships {
             }
         }
 
-        
+        private void label3_Click(object sender, EventArgs e) {
+            this.Close();
+        }
 
         private void pictureBox2_Click(object sender, EventArgs e) {
             if (addships) {
@@ -234,8 +238,35 @@ namespace Battleships {
                 pictureBox3.Refresh();
                 pictureBox2.Refresh();
             }
+
             if(ships.Count == 34) {
                 addships = false;
+            }
+
+            if (game.playing == 1 && readyToPlay) {
+                
+                readyToPlay = false;
+                int cursorX = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)).X - 5 - pictureBox2.Location.X - 60;
+                int cursorY = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)).Y - 5 - pictureBox2.Location.Y - 60;
+                int i = 0, j = 0;
+                getIndex(cursorX, cursorY, 5, 60, ref j, ref i);
+                game.playing = game.myTurn(i,j);
+                shotSend += i + " " + j + " ";
+                if (game.playing == 1 && !game.won()) {
+                    label1.Text = "Nice shot! One more chance!";
+                }
+                else if(game.playing == 1 && game.won()) {
+                    label1.Text = "AHOY SPONGEBOB ME BOY!";
+                    updateLocations();
+                    MessageBox.Show("You won!");
+                    this.Close();
+                }
+                else {
+                    label1.Text = "You missed! Enemy turn.";
+                    push.send(shotSend);
+                    shotSend = "";
+                }
+                updateLocations();
             }
         }
 
@@ -248,8 +279,8 @@ namespace Battleships {
             pictureBox3.Width = 453;
             pictureBox3.Height = 453;
 
-            label1.Text = "Your turn!";
-            label1.Location = new Point(pictureBox2.Location.X + pictureBox2.Width / 2 - label1.Width / 2, ((pictureBox2.Height + pictureBox2.Location.Y) + (this.ClientRectangle.Height - (pictureBox2.Height + pictureBox2.Location.Y)) / 2) - label1.Height / 2);
+            label1.Text = "Welcome!";
+            updateLocations();
 
             pictureBox1.Hide();
             pictureBox2.Show();
@@ -309,13 +340,20 @@ namespace Battleships {
                 game.enemyStart(pull.receive());
                 label1.Text = "Connected with the enemy captain! Your turn!";
                 pictureBox2.Refresh();
+                readyToPlay = true;
             }
             else {
                 game.enemyStart(pull.receive());
                 push.send(game.getMyShips());
                 label1.Text = "Connected with the enemy captain! Wait for your turn.";
                 pictureBox2.Refresh();
+                timer2.Start();
             }
+        }
+        private void updateLocations() {
+            label2.Location = new Point(20 + (pictureBox3.Location.X - (pictureBox2.Location.X + pictureBox2.Width)) / 2 + (pictureBox2.Location.X + pictureBox2.Width) - label2.Width / 2, pictureBox3.Location.Y + pictureBox3.Height / 2);
+            label1.Location = new Point(pictureBox2.Location.X + pictureBox2.Width / 2 - label1.Width / 2, ((pictureBox2.Height + pictureBox2.Location.Y) + (this.ClientRectangle.Height - (pictureBox2.Height + pictureBox2.Location.Y)) / 2) - label1.Height / 2);
+
         }
     }
 }
