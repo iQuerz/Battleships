@@ -254,6 +254,7 @@ namespace Battleships {
                 shotSend += i + " " + j + " ";
                 if (game.playing == 1 && !game.won()) {
                     label1.Text = "Nice shot! One more chance!";
+                    readyToPlay = true;
                 }
                 else if(game.playing == 1 && game.won()) {
                     label1.Text = "AHOY SPONGEBOB ME BOY!";
